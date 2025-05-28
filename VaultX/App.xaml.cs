@@ -1,14 +1,19 @@
-﻿using System.Configuration;
-using System.Data;
-using System.Windows;
+﻿using System.Windows;
 
-namespace VaultX
+namespace VaultX;
+
+public partial class App : Application
 {
-    /// <summary>
-    /// Interaction logic for App.xaml
-    /// </summary>
-    public partial class App : Application
+    protected override void OnStartup(StartupEventArgs e)
     {
-    }
+        base.OnStartup(e);
 
+        // Globale Exception-Behandlung
+        DispatcherUnhandledException += (sender, args) =>
+        {
+            MessageBox.Show($"Ein unerwarteter Fehler ist aufgetreten:\n{args.Exception.Message}",
+                           "Fehler", MessageBoxButton.OK, MessageBoxImage.Error);
+            args.Handled = true;
+        };
+    }
 }

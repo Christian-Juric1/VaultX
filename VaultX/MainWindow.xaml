@@ -4,10 +4,149 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:VaultX"
+        xmlns:converter="clr-namespace:VaultX.Converters"
         mc:Ignorable="d"
-        Title="VaultX"
-        Height="450" Width="800">
-    <Grid>
-        
+        Title="VaultX - Passwort Manager"
+        Height="700" Width="1000"
+        FontFamily="Segoe UI" Background="#F5F5F7"
+        WindowStartupLocation="CenterScreen">
+    <Window.Resources>
+        <!-- Apple-ähnliche Styles -->
+        <Style x:Key="AppleButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="#007AFF"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="20,10"/>
+            <Setter Property="Margin" Value="5"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="8" 
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" 
+                                            VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#0056CC"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Background" Value="#004499"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="AppleTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#D1D1D6"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}" 
+                                BorderThickness="{TemplateBinding BorderThickness}" 
+                                CornerRadius="8">
+                            <ScrollViewer x:Name="PART_ContentHost" 
+                                        Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="AppleDataGridStyle" TargetType="DataGrid">
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="BorderBrush" Value="#D1D1D6"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="GridLinesVisibility" Value="None"/>
+            <Setter Property="HeadersVisibility" Value="Column"/>
+            <Setter Property="RowBackground" Value="White"/>
+            <Setter Property="AlternatingRowBackground" Value="#F9F9F9"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+            <Setter Property="CanUserAddRows" Value="False"/>
+            <Setter Property="CanUserDeleteRows" Value="False"/>
+            <Setter Property="AutoGenerateColumns" Value="False"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+            <TextBlock Text="VaultX" FontSize="28" FontWeight="Bold" 
+                       Foreground="#1D1D1F" VerticalAlignment="Center"/>
+            <TextBlock Text="Ihr sicherer Passwort-Manager" FontSize="14" 
+                       Foreground="#6E6E73" VerticalAlignment="Bottom" Margin="15,0,0,5"/>
+        </StackPanel>
+
+        <!-- Search Bar -->
+        <Grid Grid.Row="1" Margin="0,0,0,20">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <TextBox Grid.Column="0" 
+                     Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                     Style="{StaticResource AppleTextBoxStyle}"
+                     FontSize="16" Height="40"/>
+            <TextBlock Text="🔍 Suchen..." 
+                       Foreground="#8E8E93" 
+                       IsHitTestVisible="False"
+                       VerticalAlignment="Center" 
+                       HorizontalAlignment="Left" 
+                       Margin="15,0,0,0"
+                       Visibility="{Binding Text.IsEmpty, RelativeSource={RelativeSource AncestorType=TextBox}, Converter={x:Static converter:BooleanToVisibilityConverter.Instance}}"/>
+
+            <Button Grid.Column="1" Content="+ Hinzufügen" 
+                    Style="{StaticResource AppleButtonStyle}"
+                    Command="{Binding AddEntryCommand}" 
+                    Height="40" Margin="10,0,0,0"/>
+        </Grid>
+
+        <!-- Data Grid -->
+        <DataGrid Grid.Row="2" 
+                  ItemsSource="{Binding FilteredEntries}"
+                  SelectedItem="{Binding SelectedEntry}"
+                  Style="{StaticResource AppleDataGridStyle}"
+                  FontSize="14" RowHeight="45">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Website" Binding="{Binding Website}" Width="300"/>
+                <DataGridTextColumn Header="E-Mail" Binding="{Binding Email}" Width="250"/>
+                <DataGridTextColumn Header="Erstellt" Binding="{Binding CreatedDate, StringFormat=dd.MM.yyyy}" Width="120"/>
+                <DataGridTextColumn Header="Geändert" Binding="{Binding LastModifiedDate, StringFormat=dd.MM.yyyy}" Width="120"/>
+            </DataGrid.Columns>
+        </DataGrid>
+
+        <!-- Action Buttons -->
+        <StackPanel Grid.Row="3" Orientation="Horizontal" 
+                    HorizontalAlignment="Right" Margin="0,20,0,0">
+            <Button Content="Passwort kopieren" 
+                    Style="{StaticResource AppleButtonStyle}"
+                    Command="{Binding CopyPasswordCommand}"
+                    Background="#34C759"/>
+            <Button Content="Bearbeiten" 
+                    Style="{StaticResource AppleButtonStyle}"
+                    Command="{Binding EditEntryCommand}"
+                    Background="#FF9500"/>
+            <Button Content="Löschen" 
+                    Style="{StaticResource AppleButtonStyle}"
+                    Command="{Binding DeleteEntryCommand}"
+                    Background="#FF3B30"/>
+        </StackPanel>
     </Grid>
 </Window>
