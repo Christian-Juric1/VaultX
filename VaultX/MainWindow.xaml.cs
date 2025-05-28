@@ -13,7 +13,7 @@ public partial class MainWindow : Window
         InitializeComponent();
 
         _viewModel = new MainViewModel();
-        DataContext = _viewModel;
+        this.DataContext = _viewModel;
         Loaded += MainWindow_Loaded;
     }
 
